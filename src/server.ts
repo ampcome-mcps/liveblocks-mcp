@@ -1,3 +1,4 @@
+import dotenv from "dotenv";
 import { z } from "zod";
 import { callLiveblocksApi } from "./utils.js";
 import { Liveblocks } from "@liveblocks/node";
@@ -9,9 +10,12 @@ import {
   UsersAccesses,
 } from "./zod.js";
 
+// Load environment variables
+dotenv.config();
+
 export const server = new McpServer({
-  name: "liveblocks-mcp-server",
-  version: "1.0.0",
+  name: process.env.MCP_SERVER_NAME || "liveblocks-mcp-server",
+  version: process.env.MCP_SERVER_VERSION || "1.0.0",
 });
 
 // === Setup ========================================================
@@ -20,9 +24,23 @@ let client: Liveblocks;
 
 function getLiveblocks() {
   if (!client) {
+    const secretKey = process.env.LIVEBLOCKS_SECRET_KEY;
+    
+    if (!secretKey) {
+      throw new Error(
+        "LIVEBLOCKS_SECRET_KEY environment variable is required. " +
+        "Please set it in your .env file or environment."
+      );
+    }
+    
     client = new Liveblocks({
-      secret: process.env.LIVEBLOCKS_SECRET_KEY as string,
+      secret: secretKey,
     });
+    
+    // Optional: Log successful initialization (without exposing the key)
+    if (process.env.DEBUG === "true") {
+      console.error("🔗 Liveblocks client initialized successfully");
+    }
   }
   return client;
 }

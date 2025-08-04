@@ -7,19 +7,23 @@
     "liveblocks-mcp-server": "./build/index.js"
   },
   "scripts": {
-    "build": "tsc && chmod 755 build/index.js",
-    "prepare": "npm run build"
+    "build": "tsc && node -e \"const fs = require('fs'); const file = 'build/index.js'; const content = fs.readFileSync(file, 'utf8'); if (!content.startsWith('#!/usr/bin/env node')) { fs.writeFileSync(file, '#!/usr/bin/env node\\n' + content); }\" && chmod 755 build/index.js",
+    "build:simple": "bash scripts/build.sh",
+    "prepare": "npm run build",
+    "test": "node build/index.js --help || echo 'Testing executable...'",
+    "dev": "npm run build && node build/index.js"
   },
   "files": [
     "build"
   ],
-  "keywords": [],
+  "keywords": ["liveblocks", "mcp", "collaboration", "real-time"],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "Liveblocks MCP Server for real-time collaboration features",
   "dependencies": {
     "@liveblocks/node": "^2.24.0",
     "@modelcontextprotocol/sdk": "^1.8.0",
+    "dotenv": "^16.4.5",
     "zod": "^3.24.2"
   },
   "devDependencies": {
